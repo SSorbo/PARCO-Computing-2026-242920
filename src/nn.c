@@ -1,5 +1,6 @@
 #include "nn.h"
 #include "math_utils.h"
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
@@ -88,6 +89,78 @@ void nn_free(NeuralNetwork* nn) {
         free(layers[layer_idx]->deltas);
     }
     free(nn);
+}
+
+NeuralNetwork* nn_clone(NeuralNetwork* src) {
+    if (!src) return NULL;
+
+    NeuralNetwork* clone = nn_create(src->hidden.input_size,
+                                     src->hidden.output_size,
+                                     src->output.output_size);
+    if (!clone) return NULL;
+
+    int hid_w_size = src->hidden.input_size * src->hidden.output_size;
+    int out_w_size = src->output.input_size * src->output.output_size;
+
+    memcpy(clone->hidden.weights, src->hidden.weights,
+           hid_w_size * sizeof(float));
+    memcpy(clone->hidden.biases, src->hidden.biases,
+           src->hidden.output_size * sizeof(float));
+    memcpy(clone->output.weights, src->output.weights,
+           out_w_size * sizeof(float));
+    memcpy(clone->output.biases, src->output.biases,
+           src->output.output_size * sizeof(float));
+
+    return clone;
+}
+
+void verify_identical_weights(NeuralNetwork* seq_nn, NeuralNetwork* omp_nn) {
+    if (!seq_nn || !omp_nn) {
+        fprintf(stderr, "ERROR: null neural network pointer passed to verification.\n");
+        return;
+    }
+
+    int hid_w_size = seq_nn->hidden.input_size * seq_nn->hidden.output_size;
+    int out_w_size = seq_nn->output.input_size * seq_nn->output.output_size;
+
+    for (int i = 0; i < hid_w_size; i++) {
+        float diff = fabsf(seq_nn->hidden.weights[i] - omp_nn->hidden.weights[i]);
+        if (diff > 1e-4f) {
+            fprintf(stderr,
+                    "ERROR: Hidden weight divergence at index %d: seq=%.8f omp=%.8f diff=%.8f\n",
+                    i, seq_nn->hidden.weights[i], omp_nn->hidden.weights[i], diff);
+            return;
+        }
+    }
+    for (int i = 0; i < seq_nn->hidden.output_size; i++) {
+        float diff = fabsf(seq_nn->hidden.biases[i] - omp_nn->hidden.biases[i]);
+        if (diff > 1e-4f) {
+            fprintf(stderr,
+                    "ERROR: Hidden bias divergence at index %d: seq=%.8f omp=%.8f diff=%.8f\n",
+                    i, seq_nn->hidden.biases[i], omp_nn->hidden.biases[i], diff);
+            return;
+        }
+    }
+    for (int i = 0; i < out_w_size; i++) {
+        float diff = fabsf(seq_nn->output.weights[i] - omp_nn->output.weights[i]);
+        if (diff > 1e-4f) {
+            fprintf(stderr,
+                    "ERROR: Output weight divergence at index %d: seq=%.8f omp=%.8f diff=%.8f\n",
+                    i, seq_nn->output.weights[i], omp_nn->output.weights[i], diff);
+            return;
+        }
+    }
+    for (int i = 0; i < seq_nn->output.output_size; i++) {
+        float diff = fabsf(seq_nn->output.biases[i] - omp_nn->output.biases[i]);
+        if (diff > 1e-4f) {
+            fprintf(stderr,
+                    "ERROR: Output bias divergence at index %d: seq=%.8f omp=%.8f diff=%.8f\n",
+                    i, seq_nn->output.biases[i], omp_nn->output.biases[i], diff);
+            return;
+        }
+    }
+
+    printf("[VERIFICATION SUCCESS]: Both models converged to the exact same state.\n");
 }
 
 void nn_zero_grads(NeuralNetwork* nn) {

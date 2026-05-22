@@ -44,6 +44,22 @@ void nn_forward(NeuralNetwork* nn, float* input);
  */
 void nn_backward(NeuralNetwork* nn, float* input, float* target);
 
+/* Zero the accumulated gradient buffers before each mini-batch. */
+void nn_zero_grads(NeuralNetwork* nn);
+
+/* Clone the network weights and biases to create an independent model state.
+ * This is critical for fair performance comparisons: the sequential and
+ * OpenMP runs must start from the same initialized model to prevent state
+ * leakage between experiments.
+ */
+NeuralNetwork* nn_clone(NeuralNetwork* src);
+
+/* Verify every weight and bias in two networks for near-identical state.
+ * If a mismatch exceeds the tolerance, emit a loud error. Otherwise print
+ * success for an apples-to-apples benchmark verification.
+ */
+void verify_identical_weights(NeuralNetwork* seq_nn, NeuralNetwork* omp_nn);
+
 /* Update weights in-place using accumulated grads and given LR. */
 void nn_update_weights(NeuralNetwork* nn, float learning_rate);
 
