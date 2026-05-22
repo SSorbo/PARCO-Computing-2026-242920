@@ -3,6 +3,8 @@
 #include <string.h>
 #include <omp.h>
 #include "nn.h"
+#include "math_utils.h"
+#include "math_omp.h"
 
 static NeuralNetwork* create_thread_local_nn(NeuralNetwork* master) {
     if (!master) return NULL;
@@ -96,6 +98,79 @@ static void destroy_thread_local_nn(NeuralNetwork* local_nn) {
     free(local_nn);
 }
 
+static void nn_forward_omp(NeuralNetwork* nn, float* input) {
+    Layer* hid = &nn->hidden;
+    Layer* out = &nn->output;
+
+    int in_size  = hid->input_size;
+    int hid_size = hid->output_size;
+    int out_size = out->output_size;
+
+    mat_vec_mult_tiled(hid->weights, input, hid->biases, hid->pre_acts,
+                       hid_size, in_size);
+    for (int j = 0; j < hid_size; j++)
+        hid->activations[j] = sigmoid(hid->pre_acts[j]);
+
+    mat_vec_mult_tiled(out->weights, hid->activations, out->biases, out->pre_acts,
+                       out_size, hid_size);
+    for (int j = 0; j < out_size; j++)
+        out->activations[j] = sigmoid(out->pre_acts[j]);
+}
+
+static void nn_backward_omp(NeuralNetwork* nn, float* input, float* target) {
+    Layer* hid = &nn->hidden;
+    Layer* out = &nn->output;
+
+    int hid_size = hid->output_size;
+    int out_size = out->output_size;
+    int in_size  = hid->input_size;
+
+    for (int j = 0; j < out_size; j++) {
+        float error = out->activations[j] - target[j];
+        out->deltas[j] = error * sigmoid_deriv(out->pre_acts[j]);
+    }
+
+    float* transposed = (float*)malloc(hid_size * out_size * sizeof(float));
+    if (transposed == NULL) {
+        for (int i = 0; i < hid_size; i++) {
+            float sum = 0.0f;
+            for (int j = 0; j < out_size; j++)
+                sum += out->weights[j * hid_size + i] * out->deltas[j];
+            hid->deltas[i] = sum * sigmoid_deriv(hid->pre_acts[i]);
+        }
+    } else {
+        for (int j = 0; j < out_size; j++) {
+            for (int i = 0; i < hid_size; i++)
+                transposed[i * out_size + j] = out->weights[j * hid_size + i];
+        }
+        mat_vec_mult_tiled(transposed, out->deltas, NULL, hid->deltas,
+                           hid_size, out_size);
+        for (int i = 0; i < hid_size; i++)
+            hid->deltas[i] *= sigmoid_deriv(hid->pre_acts[i]);
+        free(transposed);
+    }
+
+    for (int j = 0; j < out_size; j++) {
+        float delta = out->deltas[j];
+        int base = j * hid_size;
+        for (int i = 0; i < hid_size; i++) {
+            out->weight_grads[base + i] += hid->activations[i] * delta;
+        }
+    }
+    for (int j = 0; j < out_size; j++)
+        out->bias_grads[j] += out->deltas[j];
+
+    for (int j = 0; j < hid_size; j++) {
+        float delta = hid->deltas[j];
+        int base = j * in_size;
+        for (int i = 0; i < in_size; i++) {
+            hid->weight_grads[base + i] += input[i] * delta;
+        }
+    }
+    for (int j = 0; j < hid_size; j++)
+        hid->bias_grads[j] += hid->deltas[j];
+}
+
 static void reduce_thread_local_gradients(NeuralNetwork* nn,
                                           NeuralNetwork** thread_nns,
                                           int num_threads) {
@@ -151,8 +226,8 @@ static void run_parallel_mini_batch(NeuralNetwork* nn,
         int tid = omp_get_thread_num();
         NeuralNetwork* local_nn = thread_nns[tid];
         int sample_idx = batch_indices[batch_idx];
-        nn_forward(local_nn, inputs[sample_idx]);
-        nn_backward(local_nn, inputs[sample_idx], targets[sample_idx]);
+        nn_forward_omp(local_nn, inputs[sample_idx]);
+        nn_backward_omp(local_nn, inputs[sample_idx], targets[sample_idx]);
     }
 
     reduce_thread_local_gradients(nn, thread_nns, num_threads);

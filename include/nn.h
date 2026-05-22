@@ -12,7 +12,7 @@ typedef struct {
      * `input_size * output_size` stored in row-major order so that
      * element (i, j) is accessed as `weights[i * output_size + j]`.
      */
-    float *weights;       /* size: input_size * output_size (row-major) */
+    float *weights;       /* size: output_size * input_size (row-major) */
     float *weight_grads;  /* same size as weights */
 
     /* biases are length output_size */
