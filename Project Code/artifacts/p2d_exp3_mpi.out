@@ -1,0 +1,17 @@
+=== Tue Jul 14 03:08:10 PM CEST 2026 ===
+Experiment 3: single-node MPI strong scaling
+Nodes:
+hpc3-c12-n45.unitn.it
+Total slots: 64
+gcc (GCC) 13.2.0
+mpicc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic src/main_mpi_train.c src/train_mpi.c src/nn.c src/math_utils.c src/train_utils.c src/bench_cli.c -o mpi_nn_train_1060804.hpc3-head1.unitn.it_exp3 -lm
+--- ranks=1 ---
+--- ranks=2 ---
+--- ranks=4 ---
+--- ranks=8 ---
+--- ranks=16 ---
+--- ranks=32 ---
+--- ranks=64 ---
+Rows: 36
+Output: results/exp3_mpi_strong.csv
+=== Done Tue Jul 14 03:28:29 PM CEST 2026 ===

@@ -1,0 +1,8 @@
+=== Wed Jul 15 10:10:26 AM CEST 2026 ===
+Experiment 1: sequential baseline and tiling benefit
+Node: hpc3-c10-n01.unitn.it
+gcc (GCC) 13.3.0
+gcc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic src/main_seq_train.c src/nn.c src/math_utils.c src/train_seq.c src/train_utils.c src/bench_cli.c -o seq_train_1062630.hpc3-head1.unitn.it_exp1 -lm
+Rows: 21
+Output: results/exp1_seq_baseline.csv
+=== Done Wed Jul 15 01:33:48 PM CEST 2026 ===

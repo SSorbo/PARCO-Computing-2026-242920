@@ -1,0 +1,34 @@
+=== Tue Jul 14 03:08:34 PM CEST 2026 ===
+Experiment 7a: batch-size sensitivity for sequential and OpenMP
+Node: hpc3-c12-n47.unitn.it
+Cores: 64
+gcc (GCC) 13.3.0
+gcc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic src/main_seq_train.c src/nn.c src/math_utils.c src/train_seq.c src/train_utils.c src/bench_cli.c -o seq_train_1060852.hpc3-head1.unitn.it_exp7 -lm
+gcc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic -fopenmp src/main_omp_train.c src/nn.c src/math_utils.c src/math_omp.c src/train_omp.c src/train_utils.c src/bench_cli.c -o omp_train_1060852.hpc3-head1.unitn.it_exp7 -lm
+--- seq batch=16 ---
+--- omp batch=16 threads=8 ---
+--- omp batch=16 threads=32 ---
+--- omp batch=16 threads=64 ---
+--- seq batch=32 ---
+--- omp batch=32 threads=8 ---
+--- omp batch=32 threads=32 ---
+--- omp batch=32 threads=64 ---
+--- seq batch=64 ---
+--- omp batch=64 threads=8 ---
+--- omp batch=64 threads=32 ---
+--- omp batch=64 threads=64 ---
+--- seq batch=128 ---
+--- omp batch=128 threads=8 ---
+--- omp batch=128 threads=32 ---
+--- omp batch=128 threads=64 ---
+--- seq batch=256 ---
+--- omp batch=256 threads=8 ---
+--- omp batch=256 threads=32 ---
+--- omp batch=256 threads=64 ---
+--- seq batch=512 ---
+--- omp batch=512 threads=8 ---
+--- omp batch=512 threads=32 ---
+--- omp batch=512 threads=64 ---
+Rows: 121
+Output: results/exp7_batch_seq_omp.csv
+=== Done Tue Jul 14 05:13:45 PM CEST 2026 ===

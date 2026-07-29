@@ -1,0 +1,165 @@
+Loading GCC/13.3.0
+  Loading requirement: GCCcore/13.3.0 zlib/1.3.1-GCCcore-13.3.0
+    binutils/2.42-GCCcore-13.3.0
+=== Sequential NN Training Benchmark ===
+Experiment=exp7_batch_seq Variant=seq Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=16
+ReportLossEachEpoch=0
+
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=16
+ReportLossEachEpoch=0 ThreadCounts=8
+
+--- threads=8 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=16
+ReportLossEachEpoch=0 ThreadCounts=32
+
+--- threads=32 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=16
+ReportLossEachEpoch=0 ThreadCounts=64
+
+--- threads=64 ---
+Done.
+=== Sequential NN Training Benchmark ===
+Experiment=exp7_batch_seq Variant=seq Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=32
+ReportLossEachEpoch=0
+
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=32
+ReportLossEachEpoch=0 ThreadCounts=8
+
+--- threads=8 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=32
+ReportLossEachEpoch=0 ThreadCounts=32
+
+--- threads=32 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=32
+ReportLossEachEpoch=0 ThreadCounts=64
+
+--- threads=64 ---
+Done.
+=== Sequential NN Training Benchmark ===
+Experiment=exp7_batch_seq Variant=seq Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=64
+ReportLossEachEpoch=0
+
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=64
+ReportLossEachEpoch=0 ThreadCounts=8
+
+--- threads=8 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=64
+ReportLossEachEpoch=0 ThreadCounts=32
+
+--- threads=32 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=64
+ReportLossEachEpoch=0 ThreadCounts=64
+
+--- threads=64 ---
+Done.
+=== Sequential NN Training Benchmark ===
+Experiment=exp7_batch_seq Variant=seq Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=128
+ReportLossEachEpoch=0
+
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=128
+ReportLossEachEpoch=0 ThreadCounts=8
+
+--- threads=8 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=128
+ReportLossEachEpoch=0 ThreadCounts=32
+
+--- threads=32 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=128
+ReportLossEachEpoch=0 ThreadCounts=64
+
+--- threads=64 ---
+Done.
+=== Sequential NN Training Benchmark ===
+Experiment=exp7_batch_seq Variant=seq Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=256
+ReportLossEachEpoch=0
+
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=256
+ReportLossEachEpoch=0 ThreadCounts=8
+
+--- threads=8 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=256
+ReportLossEachEpoch=0 ThreadCounts=32
+
+--- threads=32 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=256
+ReportLossEachEpoch=0 ThreadCounts=64
+
+--- threads=64 ---
+Done.
+=== Sequential NN Training Benchmark ===
+Experiment=exp7_batch_seq Variant=seq Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=512
+ReportLossEachEpoch=0
+
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=512
+ReportLossEachEpoch=0 ThreadCounts=8
+
+--- threads=8 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=512
+ReportLossEachEpoch=0 ThreadCounts=32
+
+--- threads=32 ---
+Done.
+=== OpenMP NN Training Benchmark ===
+Experiment=exp7_batch_omp Repeats=5 Warmup=2
+Samples=8192 Network=1024->1536->10 Epochs=20 Batch=512
+ReportLossEachEpoch=0 ThreadCounts=64
+
+--- threads=64 ---
+Done.

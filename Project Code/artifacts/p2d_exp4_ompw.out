@@ -1,0 +1,16 @@
+=== Tue Jul 14 03:08:24 PM CEST 2026 ===
+Experiment 4: OpenMP weak scaling
+Node: hpc3-c12-n46.unitn.it
+Cores: 64
+gcc (GCC) 13.3.0
+gcc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic -fopenmp src/main_omp_train.c src/nn.c src/math_utils.c src/math_omp.c src/train_omp.c src/train_utils.c src/bench_cli.c -o omp_train_1060817.hpc3-head1.unitn.it_exp4 -lm
+--- threads=1 hidden=128 ---
+--- threads=2 hidden=256 ---
+--- threads=4 hidden=512 ---
+--- threads=8 hidden=1024 ---
+--- threads=16 hidden=2048 ---
+--- threads=32 hidden=4096 ---
+--- threads=64 hidden=8192 ---
+Rows: 36
+Output: results/exp4_omp_weak.csv
+=== Done Tue Jul 14 03:24:04 PM CEST 2026 ===

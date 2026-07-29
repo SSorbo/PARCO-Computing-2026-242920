@@ -1,0 +1,43 @@
+Loading OpenMPI/4.1.6-GCC-13.2.0
+  Loading requirement: GCCcore/13.2.0 zlib/1.2.13-GCCcore-13.2.0
+    binutils/2.40-GCCcore-13.2.0 GCC/13.2.0 numactl/2.0.16-GCCcore-13.2.0
+    XZ/5.4.4-GCCcore-13.2.0 libxml2/2.11.5-GCCcore-13.2.0
+    libpciaccess/0.17-GCCcore-13.2.0 hwloc/2.9.2-GCCcore-13.2.0 OpenSSL/1.1
+    libevent/2.1.12-GCCcore-13.2.0 UCX/1.15.0-GCCcore-13.2.0
+    libfabric/1.19.0-GCCcore-13.2.0 PMIx/4.2.6-GCCcore-13.2.0
+    UCC/1.2.0-GCCcore-13.2.0
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=1 Repeats=5 Warmup=2
+Samples=500 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=2 Repeats=5 Warmup=2
+Samples=1000 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=4 Repeats=5 Warmup=2
+Samples=2000 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=8 Repeats=5 Warmup=2
+Samples=4000 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=16 Repeats=5 Warmup=2
+Samples=8000 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=32 Repeats=5 Warmup=2
+Samples=16000 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+
+=== MPI NN Training Benchmark ===
+Experiment=exp5_mpi_weak Ranks=64 Repeats=5 Warmup=2
+Samples=32000 Network=1024->1536->10 Epochs=20 Batch=64 Tile=64
+ReportLossEachEpoch=0
+

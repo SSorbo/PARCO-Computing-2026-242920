@@ -1,0 +1,56 @@
+#!/bin/bash
+#PBS -N p2d_exp7_bmpi
+#PBS -o ./artifacts/p2d_exp7_bmpi.out
+#PBS -e ./artifacts/p2d_exp7_bmpi.err
+#PBS -q shortCPUQ
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=64:mpiprocs=64:mem=128gb
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+mkdir -p results artifacts
+JOB_TAG="${PBS_JOBID:-manual_$$}"
+MPI_BIN="mpi_nn_train_${JOB_TAG}_exp7"
+trap 'rm -f "$MPI_BIN"' EXIT
+
+module load OpenMPI/4.1.6-GCC-13.2.0
+export UCX_TLS=sm,self
+
+echo "=== $(date) ==="
+echo "Experiment 7b: batch-size sensitivity for single-node MPI"
+echo "Nodes:"
+sort -u "$PBS_NODEFILE"
+echo "Total slots: $(wc -l < "$PBS_NODEFILE")"
+mpicc --version | head -1
+
+make mpi MPI_BIN="$MPI_BIN"
+
+CSV="results/exp7_batch_mpi.csv"
+rm -f "$CSV"
+
+first=1
+for batch in 16 32 64 128 256 512; do
+  for np in 8 32 64; do
+    echo "--- mpi batch=$batch ranks=$np ---"
+
+    hdr="--no-header"
+    mode="--append"
+    if [ "$first" -eq 1 ]; then
+      hdr=""
+      mode="--overwrite"
+      first=0
+    fi
+
+    mpirun --map-by core --bind-to core -np "$np" "./$MPI_BIN" \
+      --experiment=exp7_batch_mpi \
+      --samples=8192 --input=1024 --hidden=1536 --output=10 \
+      --epochs=20 --batch="$batch" --tile=64 \
+      --warmup=2 --repeats=5 \
+      --report-loss-each-epoch=0 \
+      $mode $hdr --csv="$CSV"
+  done
+done
+
+echo "Rows: $(wc -l < "$CSV")"
+echo "Output: $CSV"
+echo "=== Done $(date) ==="

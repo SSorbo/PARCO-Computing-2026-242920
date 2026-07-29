@@ -1,0 +1,56 @@
+#!/bin/bash
+#PBS -N p2d_exp6_tile
+#PBS -o ./artifacts/p2d_exp6_tile.out
+#PBS -e ./artifacts/p2d_exp6_tile.err
+#PBS -q shortCPUQ
+#PBS -l walltime=05:00:00
+#PBS -l select=1:ncpus=64:mpiprocs=64:mem=128gb
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+mkdir -p results artifacts
+JOB_TAG="${PBS_JOBID:-manual_$$}"
+MPI_BIN="mpi_nn_train_${JOB_TAG}_exp6"
+trap 'rm -f "$MPI_BIN"' EXIT
+
+module load OpenMPI/4.1.6-GCC-13.2.0
+export UCX_TLS=sm,self
+
+echo "=== $(date) ==="
+echo "Experiment 6: single-node MPI tile-size sensitivity"
+echo "Nodes:"
+sort -u "$PBS_NODEFILE"
+echo "Total slots: $(wc -l < "$PBS_NODEFILE")"
+mpicc --version | head -1
+
+make mpi MPI_BIN="$MPI_BIN"
+
+CSV="results/exp6_mpi_tile.csv"
+rm -f "$CSV"
+
+first=1
+for np in 1 16 64; do
+  for tile in 16 32 64 128 256 512 1024 2048; do
+    echo "--- ranks=$np tile=$tile ---"
+
+    hdr="--no-header"
+    mode="--append"
+    if [ "$first" -eq 1 ]; then
+      hdr=""
+      mode="--overwrite"
+      first=0
+    fi
+
+    mpirun --map-by core --bind-to core -np "$np" "./$MPI_BIN" \
+      --experiment=exp6_mpi_tile \
+      --samples=5000 --input=1024 --hidden=1536 --output=10 \
+      --epochs=20 --batch=64 --tile="$tile" \
+      --warmup=2 --repeats=5 \
+      --report-loss-each-epoch=0 \
+      $mode $hdr --csv="$CSV"
+  done
+done
+
+echo "Rows: $(wc -l < "$CSV")"
+echo "Output: $CSV"
+echo "=== Done $(date) ==="

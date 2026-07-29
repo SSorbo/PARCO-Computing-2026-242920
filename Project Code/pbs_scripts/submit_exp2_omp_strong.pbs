@@ -1,0 +1,53 @@
+#!/bin/bash
+#PBS -N p2d_exp2_omp
+#PBS -o ./artifacts/p2d_exp2_omp.out
+#PBS -e ./artifacts/p2d_exp2_omp.err
+#PBS -q shortCPUQ
+#PBS -l walltime=04:00:00
+#PBS -l select=1:ncpus=64:ompthreads=64:mem=32gb
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+mkdir -p results artifacts
+JOB_TAG="${PBS_JOBID:-manual_$$}"
+OMP_BIN="omp_train_${JOB_TAG}_exp2"
+trap 'rm -f "$OMP_BIN"' EXIT
+
+module load GCC/13.3.0
+module load numactl/2.0.18-GCCcore-13.3.0
+
+echo "=== $(date) ==="
+echo "Experiment 2: OpenMP strong scaling"
+echo "Node: $(hostname)"
+echo "Cores: $(nproc)"
+gcc --version | head -1
+
+make omp OMP_BIN="$OMP_BIN"
+
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
+
+CSV="results/exp2_omp_strong.csv"
+rm -f "$CSV"
+
+numactl --interleave=all "./$OMP_BIN" \
+  --experiment=exp2_omp_canonical \
+  --thread-list=1,2,4,8,16,32,64 \
+  --samples=5000 --input=1024 --hidden=1536 --output=10 \
+  --epochs=20 --batch=64 \
+  --warmup=2 --repeats=5 \
+  --report-loss-each-epoch=0 \
+  --overwrite --csv="$CSV"
+
+numactl --interleave=all "./$OMP_BIN" \
+  --experiment=exp2_omp_large_input \
+  --thread-list=1,2,4,8,16,32,64 \
+  --samples=500 --input=178608 --hidden=448 --output=10 \
+  --epochs=10 --batch=256 \
+  --warmup=2 --repeats=5 \
+  --report-loss-each-epoch=0 \
+  --append --no-header --csv="$CSV"
+
+echo "Rows: $(wc -l < "$CSV")"
+echo "Output: $CSV"
+echo "=== Done $(date) ==="

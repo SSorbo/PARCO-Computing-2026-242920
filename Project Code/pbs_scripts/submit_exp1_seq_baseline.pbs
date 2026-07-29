@@ -1,0 +1,48 @@
+#!/bin/bash
+#PBS -N p2d_exp1_seq
+#PBS -o ./artifacts/p2d_exp1_seq.out
+#PBS -e ./artifacts/p2d_exp1_seq.err
+#PBS -q shortCPUQ
+#PBS -l walltime=05:00:00
+#PBS -l select=1:ncpus=1:mem=8gb
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+mkdir -p results artifacts
+JOB_TAG="${PBS_JOBID:-manual_$$}"
+SEQ_BIN="seq_train_${JOB_TAG}_exp1"
+trap 'rm -f "$SEQ_BIN"' EXIT
+
+module load GCC/13.3.0
+
+echo "=== $(date) ==="
+echo "Experiment 1: sequential baseline and tiling benefit"
+echo "Node: $(hostname)"
+gcc --version | head -1
+
+make seq SEQ_BIN="$SEQ_BIN"
+
+CSV="results/exp1_seq_baseline.csv"
+rm -f "$CSV"
+
+"./$SEQ_BIN" \
+  --experiment=exp1_seq_canonical \
+  --variant=both \
+  --samples=5000 --input=1024 --hidden=1536 --output=10 \
+  --epochs=20 --batch=64 \
+  --warmup=2 --repeats=5 \
+  --report-loss-each-epoch=0 \
+  --overwrite --csv="$CSV"
+
+"./$SEQ_BIN" \
+  --experiment=exp1_seq_large_input \
+  --variant=both \
+  --samples=500 --input=178608 --hidden=448 --output=10 \
+  --epochs=10 --batch=256 \
+  --warmup=2 --repeats=5 \
+  --report-loss-each-epoch=0 \
+  --append --no-header --csv="$CSV"
+
+echo "Rows: $(wc -l < "$CSV")"
+echo "Output: $CSV"
+echo "=== Done $(date) ==="

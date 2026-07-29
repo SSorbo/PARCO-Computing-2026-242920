@@ -1,0 +1,28 @@
+=== Tue Jul 14 03:08:37 PM CEST 2026 ===
+Experiment 7b: batch-size sensitivity for single-node MPI
+Nodes:
+hpc3-c10-n01.unitn.it
+Total slots: 64
+gcc (GCC) 13.2.0
+mpicc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic src/main_mpi_train.c src/train_mpi.c src/nn.c src/math_utils.c src/train_utils.c src/bench_cli.c -o mpi_nn_train_1060865.hpc3-head1.unitn.it_exp7 -lm
+--- mpi batch=16 ranks=8 ---
+--- mpi batch=16 ranks=32 ---
+--- mpi batch=16 ranks=64 ---
+--- mpi batch=32 ranks=8 ---
+--- mpi batch=32 ranks=32 ---
+--- mpi batch=32 ranks=64 ---
+--- mpi batch=64 ranks=8 ---
+--- mpi batch=64 ranks=32 ---
+--- mpi batch=64 ranks=64 ---
+--- mpi batch=128 ranks=8 ---
+--- mpi batch=128 ranks=32 ---
+--- mpi batch=128 ranks=64 ---
+--- mpi batch=256 ranks=8 ---
+--- mpi batch=256 ranks=32 ---
+--- mpi batch=256 ranks=64 ---
+--- mpi batch=512 ranks=8 ---
+--- mpi batch=512 ranks=32 ---
+--- mpi batch=512 ranks=64 ---
+Rows: 91
+Output: results/exp7_batch_mpi.csv
+=== Done Tue Jul 14 03:46:33 PM CEST 2026 ===

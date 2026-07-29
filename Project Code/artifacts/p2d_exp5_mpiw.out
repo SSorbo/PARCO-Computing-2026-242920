@@ -1,0 +1,17 @@
+=== Tue Jul 14 03:08:32 PM CEST 2026 ===
+Experiment 5: single-node MPI weak scaling
+Nodes:
+hpc3-c12-n37.unitn.it
+Total slots: 64
+gcc (GCC) 13.2.0
+mpicc -O3 -std=c11 -D_POSIX_C_SOURCE=200112L -Iinclude -Wall -Wextra -Wpedantic src/main_mpi_train.c src/train_mpi.c src/nn.c src/math_utils.c src/train_utils.c src/bench_cli.c -o mpi_nn_train_1060827.hpc3-head1.unitn.it_exp5 -lm
+--- ranks=1 total_samples=500 ---
+--- ranks=2 total_samples=1000 ---
+--- ranks=4 total_samples=2000 ---
+--- ranks=8 total_samples=4000 ---
+--- ranks=16 total_samples=8000 ---
+--- ranks=32 total_samples=16000 ---
+--- ranks=64 total_samples=32000 ---
+Rows: 36
+Output: results/exp5_mpi_weak.csv
+=== Done Tue Jul 14 03:20:03 PM CEST 2026 ===

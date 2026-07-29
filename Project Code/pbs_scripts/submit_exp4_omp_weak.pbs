@@ -1,0 +1,59 @@
+#!/bin/bash
+#PBS -N p2d_exp4_ompw
+#PBS -o ./artifacts/p2d_exp4_ompw.out
+#PBS -e ./artifacts/p2d_exp4_ompw.err
+#PBS -q shortCPUQ
+#PBS -l walltime=04:00:00
+#PBS -l select=1:ncpus=64:ompthreads=64:mem=64gb
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+mkdir -p results artifacts
+JOB_TAG="${PBS_JOBID:-manual_$$}"
+OMP_BIN="omp_train_${JOB_TAG}_exp4"
+trap 'rm -f "$OMP_BIN"' EXIT
+
+module load GCC/13.3.0
+module load numactl/2.0.18-GCCcore-13.3.0
+
+echo "=== $(date) ==="
+echo "Experiment 4: OpenMP weak scaling"
+echo "Node: $(hostname)"
+echo "Cores: $(nproc)"
+gcc --version | head -1
+
+make omp OMP_BIN="$OMP_BIN"
+
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
+
+CSV="results/exp4_omp_weak.csv"
+rm -f "$CSV"
+
+first=1
+for pair in 1:128 2:256 4:512 8:1024 16:2048 32:4096 64:8192; do
+  threads="${pair%%:*}"
+  hidden="${pair##*:}"
+  echo "--- threads=$threads hidden=$hidden ---"
+
+  hdr="--no-header"
+  mode="--append"
+  if [ "$first" -eq 1 ]; then
+    hdr=""
+    mode="--overwrite"
+    first=0
+  fi
+
+  numactl --interleave=all "./$OMP_BIN" \
+    --experiment=exp4_omp_weak \
+    --thread-list="$threads" \
+    --samples=5000 --input=1024 --hidden="$hidden" --output=10 \
+    --epochs=20 --batch=64 \
+    --warmup=2 --repeats=5 \
+    --report-loss-each-epoch=0 \
+    $mode $hdr --csv="$CSV"
+done
+
+echo "Rows: $(wc -l < "$CSV")"
+echo "Output: $CSV"
+echo "=== Done $(date) ==="

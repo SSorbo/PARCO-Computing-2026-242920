@@ -1,0 +1,70 @@
+#!/bin/bash
+#PBS -N p2d_exp7_bso
+#PBS -o ./artifacts/p2d_exp7_bso.out
+#PBS -e ./artifacts/p2d_exp7_bso.err
+#PBS -q shortCPUQ
+#PBS -l walltime=06:00:00
+#PBS -l select=1:ncpus=64:ompthreads=64:mem=32gb
+
+set -euo pipefail
+cd "$PBS_O_WORKDIR"
+mkdir -p results artifacts
+JOB_TAG="${PBS_JOBID:-manual_$$}"
+SEQ_BIN="seq_train_${JOB_TAG}_exp7"
+OMP_BIN="omp_train_${JOB_TAG}_exp7"
+trap 'rm -f "$SEQ_BIN" "$OMP_BIN"' EXIT
+
+module load GCC/13.3.0
+module load numactl/2.0.18-GCCcore-13.3.0
+
+echo "=== $(date) ==="
+echo "Experiment 7a: batch-size sensitivity for sequential and OpenMP"
+echo "Node: $(hostname)"
+echo "Cores: $(nproc)"
+gcc --version | head -1
+
+make seq SEQ_BIN="$SEQ_BIN"
+make omp OMP_BIN="$OMP_BIN"
+
+export OMP_PROC_BIND=close
+export OMP_PLACES=cores
+
+CSV="results/exp7_batch_seq_omp.csv"
+rm -f "$CSV"
+
+first=1
+for batch in 16 32 64 128 256 512; do
+  echo "--- seq batch=$batch ---"
+  hdr="--no-header"
+  mode="--append"
+  if [ "$first" -eq 1 ]; then
+    hdr=""
+    mode="--overwrite"
+    first=0
+  fi
+
+  "./$SEQ_BIN" \
+    --experiment=exp7_batch_seq \
+    --variant=seq \
+    --samples=8192 --input=1024 --hidden=1536 --output=10 \
+    --epochs=20 --batch="$batch" \
+    --warmup=2 --repeats=5 \
+    --report-loss-each-epoch=0 \
+    $mode $hdr --csv="$CSV"
+
+  for threads in 8 32 64; do
+    echo "--- omp batch=$batch threads=$threads ---"
+    numactl --interleave=all "./$OMP_BIN" \
+      --experiment=exp7_batch_omp \
+      --thread-list="$threads" \
+      --samples=8192 --input=1024 --hidden=1536 --output=10 \
+      --epochs=20 --batch="$batch" \
+      --warmup=2 --repeats=5 \
+      --report-loss-each-epoch=0 \
+      --append --no-header --csv="$CSV"
+  done
+done
+
+echo "Rows: $(wc -l < "$CSV")"
+echo "Output: $CSV"
+echo "=== Done $(date) ==="
